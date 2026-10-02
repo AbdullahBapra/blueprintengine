@@ -1,0 +1,329 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ---------- Design tokens (measured from the reference layout) ---------- */
+:root {
+  --accent: #00efd4;
+  --accent-hover: #20dcc7;
+  --teal: #00897a;
+  --mint-50: #f2fefd;
+  --mint-100: #d9fffb;
+  --mint-200: #c0fff8;
+  --mint-300: #97fff4;
+  --mint-soft: rgba(123, 255, 240, 0.4);
+  --ink: #040404;
+  --text: #1a1b1f;
+  --line: rgba(0, 0, 0, 0.5);
+  --radius: 1.875rem;
+  --container: 100rem;
+  --gutter: 3rem;
+}
+
+@layer base {
+/* Stepped root size — every rem in the layout scales with these steps */
+html { font-size: 16px; }
+@media (max-width: 1920px) { html { font-size: 15px; } }
+@media (max-width: 1666px) {
+  html { font-size: 12.5px; }
+  /* Inner pages (service / category / industry) run slightly smaller, like the reference. */
+  html:has(.inner-page) { font-size: 11.5px; }
+}
+@media (max-width: 1024px) { html { font-size: 10px; } }
+@media (max-width: 600px) { html { font-size: 16px; } }
+
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: #fff;
+  color: var(--text);
+  font-family: var(--font-archivo), sans-serif;
+  font-size: 1.28rem;
+  line-height: 2.24rem;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+a { color: inherit; text-decoration: none; }
+h1, h2, h3, p { margin: 0; }
+
+}
+
+@layer components {
+.container-x {
+  width: 100%;
+  max-width: calc(var(--container) + var(--gutter) * 2);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+
+.sec-red { padding: 10rem 0; }
+.sec-green { padding: 5rem 0; }
+.sec-blue { padding: 7.5rem 0; }
+
+/* ---------- Typography ---------- */
+.display {
+  display: block;
+  font-size: 13.375rem;
+  line-height: 10.7rem;
+  font-weight: 700;
+  letter-spacing: -0.062rem;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+.display-inline { display: inline; }
+.accent { color: var(--accent); }
+.sub-strong,
+.sub-light {
+  font-size: 2.625rem;
+  line-height: 3.15rem;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+.sub-strong { font-weight: 700; }
+.sub-light { font-weight: 200; }
+.body-thin {
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+  font-weight: 100;
+  color: var(--ink);
+}
+.card-title {
+  font-size: 3.125rem;
+  line-height: 3.75rem;
+  font-weight: 200;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+/* ---------- Pill button with rotating arrow ---------- */
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.938rem;
+  padding: 0.813rem 0.938rem 0.813rem 1.5rem;
+  border-radius: 1.875rem;
+  font-size: 1.375rem;
+  line-height: 1.625rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  color: #fff;
+  isolation: isolate;
+  transition: color 0.2s;
+  cursor: pointer;
+  border: 0.8px solid transparent;
+  background: transparent;
+  font-family: inherit;
+}
+.btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--teal);
+  transform-origin: 0 50%;
+  transition: transform 0.5s;
+}
+.btn:hover::after { transform: scaleX(1.02); }
+/* Hover fill: a circle grows out of the arrow icon until it covers the whole pill,
+   then shrinks back into the icon on leave. Sits between the background (::after)
+   and the label/icon. */
+.btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  background: var(--btn-fill, #04332e);
+  /* --btn-o = distance from the right edge to the icon centre (fill grows from there) */
+  clip-path: circle(0% at calc(100% - var(--btn-o, 2.438rem)) 50%);
+  transition: clip-path 0.55s cubic-bezier(0.65, 0, 0.35, 1);
+  pointer-events: none;
+}
+.btn:hover::before,
+.btn:focus-visible::before { clip-path: circle(150% at calc(100% - var(--btn-o, 2.438rem)) 50%); }
+.btn > * { position: relative; z-index: 1; }
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.btn-icon {
+  width: 3rem;
+  height: 3rem;
+  flex: none;
+  transition: transform 0.35s ease;
+  transform-style: preserve-3d;
+}
+.btn:hover .btn-icon { transform: translate3d(0.2rem, 0, 0) rotateZ(-40deg); }
+.btn-white { color: #000; border-color: #fff; --btn-fill: var(--accent); }
+.btn-white::after { background: #fff; }
+.btn-ghost { color: #fff; --btn-fill: rgba(255, 255, 255, 0.12); }
+.btn-ghost::after { background: rgba(255, 255, 255, 0); }
+.btn-ghost:hover { border-color: rgba(255, 255, 255, 0.4); }
+/* Compact size: header, dropdown CTAs, inline form actions */
+.btn-sm {
+  gap: 0.7rem;
+  padding: 0.4rem 0.4rem 0.4rem 1.2rem;
+  font-size: 1.1rem;
+  line-height: 1.4rem;
+  font-weight: 500;
+  --btn-o: 1.6rem; /* 0.4rem padding + 2.4rem icon / 2 */
+}
+.btn-sm .btn-icon { width: 2.4rem; height: 2.4rem; }
+/* Full width: label left, arrow right */
+.btn-full { display: flex; width: 100%; justify-content: space-between; }
+button.btn { appearance: none; }
+@media (prefers-reduced-motion: reduce) {
+  .btn::before { transition: none; }
+}
+@media (max-width: 767px) {
+  /* icon is smaller on mobile, so grow the fill from its new centre */
+  .btn { --btn-o: 2.038rem; }
+  .btn-sm { --btn-o: 1.6rem; }
+}
+
+/* ---------- Round arrow chip used on cards ---------- */
+.chip-arrow {
+  width: 2.48rem;
+  height: 2.48rem;
+  border-radius: 8rem;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+  flex: none;
+}
+.hover-card:hover .chip-arrow:not(.chip-swap) { background: #c9fff9; }
+
+/* ---------- Marquee ---------- */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 18s linear infinite;
+}
+.marquee-track.slow { animation-duration: 40s; }
+.marquee-wrap:hover .marquee-track { animation-play-state: paused; }
+
+
+
+/* ---------- Inner-page type scale (reference: .heading-title / .sub-heading / .heading-2 / .body-text) ---------- */
+.heading-title { font-size: 13.375rem; line-height: 0.8; font-weight: 700; text-transform: uppercase; color: #000; }
+.sub-heading { display: block; font-size: 2.625rem; line-height: 1.2; text-transform: uppercase; color: var(--ink); }
+.heading-2 { font-size: 5rem; line-height: 0.9; font-weight: 700; }
+.body-text { font-size: 1.125rem; line-height: 1.75rem; font-weight: 100; color: var(--ink); }
+@media (max-width: 991px) {
+  .heading-title { font-size: 3.25rem; line-height: 1.2; }
+  .sub-heading { font-size: 1.625rem; }
+  .heading-2 { font-size: 1.625rem; line-height: 1; }
+  .body-text { font-size: 0.938rem; }
+}
+@media (max-width: 767px) {
+  .heading-title { font-size: 1.625rem; }
+  .sub-heading { font-size: 0.938rem; }
+  .body-text { line-height: 1.625rem; }
+}
+
+/* ---------- Automation motifs ---------- */
+@keyframes dash { to { stroke-dashoffset: -28; } }
+.flow-line { stroke-dasharray: 6 8; animation: dash 1.2s linear infinite; }
+@keyframes flow-bg { to { background-position: 1.2rem 0; } }
+.flow-dash {
+  background: repeating-linear-gradient(90deg, var(--accent) 0 0.4rem, transparent 0.4rem 0.6rem);
+  background-size: 1.2rem 100%;
+  animation: flow-bg 0.8s linear infinite;
+}
+@keyframes voice { 0%, 100% { transform: scaleY(0.35); } 50% { transform: scaleY(1); } }
+.voice-bar { transform-origin: center; animation: voice 1.1s ease-in-out infinite; }
+
+@keyframes pulse-ring { 0% { transform: scale(1); opacity: 0.6; } 100% { transform: scale(1.9); opacity: 0; } }
+.pulse-ring { transform-box: fill-box; transform-origin: center; animation: pulse-ring 2s ease-out infinite; }
+@keyframes fade-in { from { opacity: 0; transform: translateY(1rem); } to { opacity: 1; transform: none; } }
+.fade-in { animation: fade-in 0.5s ease both; }
+
+@keyframes fade-quick { from { opacity: 0; } to { opacity: 1; } }
+.fade-quick { animation: fade-quick 0.15s ease-out both; }
+
+/* ---------- AI-automation micro-interactions ---------- */
+/* Round arrow chip: before/after swap (service cards) */
+.chip-swap { position: relative; overflow: hidden; isolation: isolate; color: var(--ink); }
+.chip-swap::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--ink);
+  transform: scale(0);
+  transition: transform 0.4s cubic-bezier(0.65, 0, 0.35, 1);
+}
+.chip-swap svg {
+  width: 1.04rem;
+  height: 1.04rem;
+  transition: transform 0.4s cubic-bezier(0.65, 0, 0.35, 1), color 0.4s;
+}
+.chip-swap .chip-a2 { position: absolute; transform: translateX(-2.2rem); color: #fff; }
+.hover-card:hover .chip-swap::before,
+.hover-card:focus-visible .chip-swap::before { transform: scale(1); }
+.hover-card:hover .chip-swap .chip-a1,
+.hover-card:focus-visible .chip-swap .chip-a1 { transform: translateX(2.2rem); }
+.hover-card:hover .chip-swap .chip-a2,
+.hover-card:focus-visible .chip-swap .chip-a2 { transform: translateX(0); }
+
+.run-num { transition: color 0.3s ease; }
+.group\/run:hover .run-num { color: var(--teal); }
+
+/* Menu icons redraw themselves once on hover (HighlightIcon) */
+.draw-icon * { stroke-dasharray: 80; stroke-dashoffset: 0; }
+.group\/hl:hover .draw-icon *,
+.group\/hl:focus-visible .draw-icon * { animation: icon-draw 0.6s ease-out; }
+@keyframes icon-draw { from { stroke-dashoffset: 80; } to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) { .draw-icon * { animation: none !important; } }
+
+::selection { background: rgba(0, 239, 212, 0.35); color: var(--ink); }
+html { scrollbar-width: thin; scrollbar-color: var(--teal) transparent; }
+
+@media (prefers-reduced-motion: reduce) {
+  .chip-swap::before, .chip-swap svg { transition: none; }
+}
+
+/* Long-form text (blog posts, legal pages) */
+.prose-page h2 { font-size: 2.625rem; line-height: 3.15rem; font-weight: 700; text-transform: uppercase; color: var(--ink); margin-top: 3.2rem; }
+.prose-page p, .prose-page li { font-size: 1.5rem; line-height: 2.4rem; font-weight: 300; color: var(--text); margin-top: 1rem; }
+.prose-page ul { list-style: disc; padding-left: 1.6rem; }
+@media (max-width: 767px) {
+  .prose-page h2 { font-size: 1.4rem; line-height: 1.8rem; }
+  .prose-page p, .prose-page li { font-size: 1rem; line-height: 1.6rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track, .flow-line, .flow-dash, .voice-bar, .pulse-ring, .fade-in, .fade-quick { animation: none; }
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width: 767px) {
+  :root { --gutter: 1rem; }
+  .display { font-size: 4.2rem; line-height: 3.8rem; }
+  .sub-strong, .sub-light { font-size: 1.35rem; line-height: 1.7rem; }
+  .card-title { font-size: 1.75rem; line-height: 2.1rem; }
+  .body-thin { font-size: 0.95rem; line-height: 1.5rem; }
+  .sec-red { padding: 4rem 0; }
+  .sec-green, .sec-blue { padding: 3rem 0; }
+  .btn { font-size: 0.9rem; gap: 0.6rem; }
+  .btn-icon { width: 2.2rem; height: 2.2rem; }
+}
+}
+
+/* ---------- Print (audit report "Save as PDF") ---------- */
+@media print {
+  header, footer, .no-print, [aria-label="Back to top"] { display: none !important; }
+  body:has(#audit-report) main > *:not(#audit) { display: none !important; }
+  #audit { padding: 0 !important; }
+}
